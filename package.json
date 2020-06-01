@@ -1,0 +1,19 @@
+{
+  "name": "aprendo-en-casa-scraping",
+  "version": "1.0.0",
+  "description": "Script para descargar recursos de la pagina web aprendo en casa",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "WebScraping",
+    "AprendoEnCasa",
+    "node"
+  ],
+  "author": "Jesus Alarcon",
+  "license": "MIT",
+  "dependencies": {
+    "puppeteer": "^3.2.0"
+  }
+}
