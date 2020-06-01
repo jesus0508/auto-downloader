@@ -1,6 +1,18 @@
 const puppeteer = require("puppeteer");
-const URL = "https://aprendoencasa.pe/#/planes-educativos/level.inicial.grade.5.speciality.0/resources";
-const SELECTOR = ".resources__resource";
+
+const UrlEnum = {
+    MAIN: "https://aprendoencasa.pe/#/planes-educativos/level.inicial.grade.5.speciality.0/resources",
+    ACTIVARTE: ""
+};
+
+const SelectorEnum = {
+    MAIN: '.resources__content',
+    PDF: '.resources__resource',
+    YT: 'a[href="#"]',
+    IFRAME: 'iframe',
+    MODAL: '.MuiDialog-root',
+    MODAL_BUTTON: 'button'
+}
 
 async function loadPage(url) {
     const browser = await puppeteer.launch({
@@ -13,31 +25,41 @@ async function loadPage(url) {
     return page;
 }
 
-async function getAllURLResources(url, selector) {
+async function getAllMainResourceUrls(url) {
     const page = await loadPage(url);
-    await page.waitForSelector(selector);
-    const pdfUrls = await page.$$eval(selector, elements => {
-        return elements
-            .map(element => element.href)
-            .filter(url => url.substr(-4) === ".pdf");
-    });
-
-    const elementHandles = await page.$$('a[href="#"]');
-    const videoUrls = [];
-    let src;
-    for (elementHandle of elementHandles) {
-        await elementHandle.click(),
-            await page.waitForSelector('iframe')
-        src = await page.$eval('iframe', element => element.src)
-        videoUrls.push(src);
-        await (await page.$('.MuiDialogActions-root button')).click();
-        await page.waitFor(3000);
-    }
+    await page.waitForSelector(SelectorEnum.PDF);
+    const mainElement = await page.$(SelectorEnum.MAIN);
+    const pdfUrls = await getPdfUrls(mainElement);
+    const videoUrls = await getYtUrls(page,mainElement);
     return [...pdfUrls, ...videoUrls];
 }
 
+function getPdfUrls(elementHandle) {
+    return elementHandle.$$eval(SelectorEnum.PDF, elements => {
+        return elements
+            .map(element => element.href)
+            .filter(url => url.substr(-4) === ".pdf"); //  los 4 ultimos caracteres
+    });
+}
+
+async function getYtUrls(page, elementHandle) {
+    const aElements = await elementHandle.$$(SelectorEnum.YT);
+    const videoUrls = [];
+    let src;
+    for (aElement of aElements) {
+        await aElement.click();
+        await page.waitForSelector(SelectorEnum.MODAL);
+        const modalElement = await page.$(SelectorEnum.MODAL);
+        src = await modalElement.$eval(SelectorEnum.IFRAME, element => element.src);
+        videoUrls.push(src);
+        await (await modalElement.$(SelectorEnum.MODAL_BUTTON)).click();
+        await page.waitFor(2500);
+    }
+    return videoUrls;
+}
+
 function main() {
-    getAllURLResources(URL, SELECTOR).then(resp => console.log(resp));
+    getAllMainResourceUrls(UrlEnum.MAIN).then(resp => console.log(resp));
 }
 
 main();
