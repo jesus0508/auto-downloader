@@ -22,13 +22,12 @@ async function main() {
     const promiseGetMainYtResources = mainYtScraper.getYtResources();
 
     Promise.all([promiseGetMainPdfResources, promiseGetActivartePdfResources, promiseGetMainYtResources])
-        .then(([mainPdfResources, activartePdfResources, mainYtResource]) => {
-            //PdfDownloadableResource.makeParentDirectories();
-            const pdfResources = [...mainPdfResources, ...activartePdfResources];
-            console.log(pdfResources.length);
-            console.log(mainYtResource.length);
+        .then(([mainPdfResources, activartePdfResources, mainYtResources]) => {
+            PdfDownloadableResource.makeRootDirectory();
+            PdfDownloadableResource.makeParentDirectories();
+            const resources = [...mainPdfResources, ...activartePdfResources, ...mainYtResources];
+            resources.forEach(resource => resource.download());
         });
-
 }
 
 main();

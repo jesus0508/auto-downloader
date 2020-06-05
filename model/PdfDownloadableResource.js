@@ -5,6 +5,7 @@ const directories = [
     "dia-4",
     "dia-5",
 ];
+const ROOT = "resources";
 const fetch = require('node-fetch');
 const { pipeline } = require('stream');
 const fs = require('fs');
@@ -37,7 +38,7 @@ class PdfDownloadableResource {
     download() {
         fetch(this.url)
             .then(resp => {
-                pipeline(resp.body, fs.createWriteStream('Nueva carpeta/' + this.fullPath),
+                pipeline(resp.body, fs.createWriteStream(`${ROOT}/${this.fullPath}`),
                     (err) => {
                         if (err) {
                             console.error('Fallo la descarga', err);
@@ -48,8 +49,12 @@ class PdfDownloadableResource {
             });
     }
 
-    static makeParentDirectories(){
-        directories.forEach(d => fs.mkdirSync(`Nueva carpeta/${d}`));
+    static makeParentDirectories() {
+        directories.forEach(d => fs.mkdirSync(`${ROOT}/${d}`));
+    }
+
+    static makeRootDirectory(){
+        fs.mkdirSync(ROOT);
     }
 }
 

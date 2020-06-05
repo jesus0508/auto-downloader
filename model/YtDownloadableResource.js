@@ -5,7 +5,7 @@ const directories = [
     "dia-4",
     "dia-5",
 ];
-
+const ROOT = "resources";
 const youtubedl = require('youtube-dl');
 const fs = require('fs');
 const { pipeline } = require('stream');
@@ -18,15 +18,20 @@ class YtDownloadableResource {
     }
 
     get parentDirname() {
-        return directories[this.day];
+        const index = this.day;
+        return Number.isInteger(index) ? directories[index - 1] : "";
     }
 
     get day() {
-        return parseInt(this.filename.charAt(4));
+        return parseInt(this._filename.charAt(4));
     }
 
     get filename() {
-        return this._filename;
+        return this.clearFilename().concat(".mp4");
+    }
+
+    clearFilename() {
+        return this._filename.replace(/["'!¡¿?():]/g, "").trim();
     }
 
     get fullPath() {
@@ -36,22 +41,22 @@ class YtDownloadableResource {
     }
 
     download() {
-        const video = youtubedl(this.url,
+        this.video = youtubedl(this._url,
             ['--format=18'],
-            { cwd: __dirname })
-
-        video.on('info', function (info) {
-            console.log('Iniciando descarga')
+            { cwd: __dirname });
+        console.log(this.fullPath);
+        this.video.on('info', function (info) {
+            console.log('Iniciando descarga...')
             console.log('Video: ' + info._filename)
             console.log('Tamaño: ' + info.size)
         })
 
-        pipeline(video, fs.createWriteStream('Nueva carpeta/' + this.fullPath),
+        pipeline(this.video, fs.createWriteStream(`${ROOT}/${this.fullPath}`),
             (err) => {
                 if (err) {
                     console.error('Ocurrio el siguiente error', err);
                 } else {
-                    console.log('Descarga exitosa');
+                    console.log('Descarga exitosa!!!');
                 }
             });
     }
