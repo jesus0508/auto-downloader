@@ -1,5 +1,5 @@
 {
-  "name": "aprendo-en-casa-scraping",
+  "name": "automated-downloading",
   "version": "1.0.0",
   "description": "Automatiza la descarga de recursos",
   "main": "index.js",
@@ -7,8 +7,10 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "WebScraping",
-    "AprendoEnCasa",
+    "Aprendo en Casa",
+    "Web Scraping",
+    "donwloader",
+    "puppeteer",
     "node"
   ],
   "author": "Jesus Alarcon",
