@@ -4,6 +4,7 @@ const Selector = {
     YT: 'a[href="#"]',
     IFRAME: 'iframe',
     MODAL: '.MuiDialog-root',
+    MODAL_TITLE: 'h2',
     MODAL_BUTTON: 'button'
 }
 

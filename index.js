@@ -1,58 +1,34 @@
-const puppeteer = require("puppeteer");
-const Url = require("./model/Url");
-const Selector = require("./model/Selector");
+const Scraper = require("./model/Scraper");
+const PdfDownloadableResource = require("./model/PdfDownloadableResource");
+const YtDownloadableResource = require("./model/YtDownloadableResource");
 
-async function loadPage(url) {
-    const browser = await puppeteer.launch({
-        headless: false,
-        slowMo: 100,
-    });
-    const page = await browser.newPage();
-    page.setViewport({ width: 1200, height: 900 });
-    await page.goto(url);
-    return page;
-}
+const urls = [
+    "https://aprendoencasa.pe/#/planes-educativos/level.inicial.grade.5.speciality.0/resources",
+    "https://aprendoencasa.pe/#/planes-educativos/level.inicial.grade.0.speciality.act/resources"
+];
 
-async function getAllMainResourcesUrl() {
-    const page = await loadPage(Url.MAIN);
-    const pdfUrls = await getPdfUrls(page);
-    const videoUrls = await getYtUrls(page);
-    return [...pdfUrls, ...videoUrls];
-}
+async function main() {
 
-async function getMainElement(page){
-    await page.waitForSelector(Selector.PDF);
-    return page.$(Selector.MAIN);
-}
+    const mainScraper = new Scraper(urls[0]);
+    await mainScraper.init();
+    const promiseGetMainPdfResources = mainScraper.getPdfResources();
 
-async function getPdfUrls(page) {
-    const mainElement = await getMainElement(page);
-    return mainElement.$$eval(Selector.PDF, elements => {
-        return elements
-            .map(element => element.href)
-            .filter(url => url.substr(-4) === ".pdf"); //  los 4 ultimos caracteres
-    });
-}
+    const activarteScraper = new Scraper(urls[1]);
+    await activarteScraper.init();
+    const promiseGetActivartePdfResources = activarteScraper.getPdfResources();
 
-async function getYtUrls(page) {
-    const mainElement = await getMainElement(page);
-    const aElements = await mainElement.$$(Selector.YT);
-    const videoUrls = [];
-    let src;
-    for (aElement of aElements) {
-        await aElement.click();
-        await page.waitForSelector(Selector.MODAL);
-        const modalElement = await page.$(Selector.MODAL);
-        src = await modalElement.$eval(Selector.IFRAME, element => element.src);
-        videoUrls.push(src);
-        await (await modalElement.$(Selector.MODAL_BUTTON)).click();
-        await page.waitFor(2500);
-    }
-    return videoUrls;
-}
+    const mainYtScraper = new Scraper(urls[0]);
+    await mainYtScraper.init();
+    const promiseGetMainYtResources = mainYtScraper.getYtResources();
 
-function main() {
-    getAllMainResourcesUrl().then(resp => console.log(resp));
+    Promise.all([promiseGetMainPdfResources, promiseGetActivartePdfResources, promiseGetMainYtResources])
+        .then(([mainPdfResources, activartePdfResources, mainYtResource]) => {
+            //PdfDownloadableResource.makeParentDirectories();
+            const pdfResources = [...mainPdfResources, ...activartePdfResources];
+            console.log(pdfResources.length);
+            console.log(mainYtResource.length);
+        });
+
 }
 
 main();
