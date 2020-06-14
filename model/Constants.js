@@ -1,0 +1,14 @@
+exports.ROOT_DIRECTORY = "resources";
+
+exports.SUB_DIRECTORIES = [
+    "resources/dia-1",
+    "resources/dia-2",
+    "resources/dia-3",
+    "resources/dia-4",
+    "resources/dia-5",
+]
+
+exports.URLS = [
+    "https://aprendoencasa.pe/#/planes-educativos/level.inicial.grade.5.speciality.0/resources",
+    "https://aprendoencasa.pe/#/planes-educativos/level.inicial.grade.0.speciality.act/resources"
+];

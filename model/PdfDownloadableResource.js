@@ -1,61 +1,31 @@
-const directories = [
-    "dia-1",
-    "dia-2",
-    "dia-3",
-    "dia-4",
-    "dia-5",
-];
-const ROOT = "resources";
 const fetch = require('node-fetch');
 const { pipeline } = require('stream');
-const fs = require('fs');
+const { createWriteStream } = require('fs');
+const { downloadErrorHandler } = require('./ErrorHandler');
+const DownloadableResource = require('./DownloadableResource')
 
-class PdfDownloadableResource {
+class PdfDownloadableResource extends DownloadableResource {
 
     constructor(url) {
-        this.url = url;
+        super(url);
     }
 
-    get parentDirname() {
+    get day() {
         const filename = this.filename;
-        return filename.substr(filename.indexOf('dia'), 5);
+        return parseInt(filename.charAt(filename.indexOf("dia-") + 4));
     }
 
     get filename() {
         return this.url.substring(this.url.lastIndexOf('/') + 1);
     }
 
-    get type() {
-        return this.url.substr(-4);
-    }
-
-    get fullPath() {
-        const parentDirname = this.parentDirname;
-        const filename = this.filename;
-        return directories.includes(parentDirname) ? `${parentDirname}/${filename}` : filename;
-    }
-
     download() {
         fetch(this.url)
             .then(resp => {
-                pipeline(resp.body, fs.createWriteStream(`${ROOT}/${this.fullPath}`),
-                    (err) => {
-                        if (err) {
-                            console.error('Fallo la descarga', err);
-                        } else {
-                            console.log('Archivo descargado');
-                        }
-                    });
+                pipeline(resp.body, createWriteStream(super.fullPath), downloadErrorHandler(this.url));
             });
     }
 
-    static makeParentDirectories() {
-        directories.forEach(d => fs.mkdirSync(`${ROOT}/${d}`));
-    }
-
-    static makeRootDirectory(){
-        fs.mkdirSync(ROOT);
-    }
 }
 
 module.exports = PdfDownloadableResource;

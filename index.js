@@ -1,30 +1,28 @@
 const Scraper = require("./model/Scraper");
-const PdfDownloadableResource = require("./model/PdfDownloadableResource");
-const YtDownloadableResource = require("./model/YtDownloadableResource");
+const DownloadableResource = require("./model/DownloadableResource");
+const { makeRootDirectory, makeParentDirectories } = require("./model/Utils");
+const { URLS, ROOT_DIRECTORY, SUB_DIRECTORIES } = require('./model/Constants');
 
-const urls = [
-    "https://aprendoencasa.pe/#/planes-educativos/level.inicial.grade.5.speciality.0/resources",
-    "https://aprendoencasa.pe/#/planes-educativos/level.inicial.grade.0.speciality.act/resources"
-];
 
 async function main() {
 
-    const mainScraper = new Scraper(urls[0]);
+    const mainScraper = new Scraper(URLS[0]);
     await mainScraper.init();
     const promiseGetMainPdfResources = mainScraper.getPdfResources();
 
-    const activarteScraper = new Scraper(urls[1]);
+    const activarteScraper = new Scraper(URLS[1]);
     await activarteScraper.init();
     const promiseGetActivartePdfResources = activarteScraper.getPdfResources();
 
-    const mainYtScraper = new Scraper(urls[0]);
+    const mainYtScraper = new Scraper(URLS[0]);
     await mainYtScraper.init();
     const promiseGetMainYtResources = mainYtScraper.getYtResources();
 
+    makeRootDirectory(ROOT_DIRECTORY);
+    makeParentDirectories(SUB_DIRECTORIES);
+
     Promise.all([promiseGetMainPdfResources, promiseGetActivartePdfResources, promiseGetMainYtResources])
         .then(([mainPdfResources, activartePdfResources, mainYtResources]) => {
-            PdfDownloadableResource.makeRootDirectory();
-            PdfDownloadableResource.makeParentDirectories();
             const resources = [...mainPdfResources, ...activartePdfResources, ...mainYtResources];
             resources.forEach(resource => resource.download());
         });
