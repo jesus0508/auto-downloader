@@ -9,6 +9,6 @@ exports.SUB_DIRECTORIES = [
 ]
 
 exports.URLS = [
-    "https://aprendoencasa.pe/#/planes-educativos/level.inicial.grade.5.speciality.0/resources",
-    "https://aprendoencasa.pe/#/planes-educativos/level.inicial.grade.0.speciality.act/resources"
+    "https://aprendoencasa.pe/#/planes-educativos/modality.ebr.level.inicial.grade.5.speciality.0.sub-speciality.0/resources",
+    "https://aprendoencasa.pe/#/planes-educativos/modality.ebr.level.inicial.grade.0-5.speciality.act.sub-speciality.0/resources"
 ];
