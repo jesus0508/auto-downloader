@@ -16,7 +16,7 @@
   "author": "Jesus Alarcon",
   "license": "MIT",
   "dependencies": {
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "puppeteer": "^3.2.0",
     "youtube-dl": "^3.0.2"
   }
